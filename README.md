@@ -1,1 +1,1 @@
-# Parkinson-s-Classifier-Using-Gait-Data
+# Parkinsons-Classifier-Using-Gait-Data
