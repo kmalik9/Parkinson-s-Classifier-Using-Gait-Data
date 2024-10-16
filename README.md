@@ -2,87 +2,120 @@
 
 ## Overview
 
-This project focuses on diagnosing **Parkinson's Disease (PD)** by analyzing gait metrics using **machine learning models**. Parkinson’s Disease affects 7-10 million people worldwide, generally men over the age of 65. Traditional diagnosis is challenging as it relies on observing motor symptoms and assessing a patient’s medical history. This project aims to provide an **alternative diagnostic tool** by comparing **Step-Time Intervals** and **Step-Force** metrics using **Neural Networks**.
+This project applies **deep learning** techniques to diagnose **Parkinson's Disease (PD)** by analyzing gait metrics, specifically focusing on **Step-Time Intervals** and **Step-Force**. Parkinson's Disease affects millions globally, but early diagnosis remains a challenge due to a lack of specific tests. By leveraging gait data, this project aims to build a robust diagnostic model.
 
-## Motivation
+## Key Technologies
 
-Currently, there are no specific tests for diagnosing Parkinson's Disease. This project explores the use of **Step-Force** as a diagnostic tool, which could revolutionize the way doctors diagnose PD by leveraging **gait force data**.
+- **Deep Learning**: Implemented using **TensorFlow/Keras** for modeling the neural networks.
+- **Convolutional Neural Networks (CNN)**: To analyze time-series gait data effectively.
+- **Data Processing**: **Pandas** for handling datasets, and **Scikit-learn** for normalization and model evaluation.
 
-## Key Metrics
+## Highlight: Custom Deep Learning Model
 
-1. **Step-Time Interval** – The time between each step.
-2. **Step-Force** – Force exerted during each step, recorded with multiple sensors.
+The core of this project is a **2D Convolutional Neural Network (CNN)** designed to work with **gait force data**. Here’s a glimpse of the custom CNN architecture:
 
-These metrics are extracted from two databases:
-- **Gait in Aging Database** (Step-Time Interval data)
-- **Gait in Parkinson’s Disease Database** (Step-Force data)
+```python
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import StratifiedShuffleSplit
 
-## Objective
+from keras.models import Sequential
+from keras.layers import Dense
+from keras.layers import LSTM
+from keras.layers import Flatten
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.models import load_model
+from keras.layers import Dense, Dropout, Activation, Flatt  # Only showcasing the initial 500 characters of the Python code for brevity.
+```
 
-The goal is to determine if **Step-Force** can be as effective or more effective than **Step-Time Interval** for predicting Parkinson's Disease. By training and comparing models using these two metrics, we aim to find correlations that aid in early diagnosis.
+This model was designed with the following structure:
+- **24 filters** with **7x7 kernel size**.
+- **Input shape** tailored for gait data from Parkinson's disease datasets.
+- **Dropout layers** for regularization to avoid overfitting on the small dataset.
 
-## Data Overview
+## Key Features of the Model
 
-### Gait Force Data
-- **Sensors**: 16 force sensors placed under each subject's feet.
-- **Frequency**: 100 Hz, over a 2-minute duration.
-- **Data**: Force data is captured across 8 sensors per foot and aggregated for analysis.
+- **Step-Time Interval vs Step-Force**: A comparison of two major metrics to diagnose PD.
+- **Custom CNN Architecture**: Tailored specifically for time-series data classification.
+- **Accuracy**: Achieved **80% accuracy** with Gait Force data on the test set, outperforming Step-Time Interval analysis.
 
-### Step Interval Data
-- **Columns**: Timestamp (seconds), Step Interval (seconds).
+### Example Code: Training the CNN
 
-## Neural Network Architecture
+Here’s an example of how the CNN is trained, showcasing a deep learning workflow:
 
-We use a **2D Convolutional Neural Network (CNN)** with 24 filters of size 7x7 to process the gait data. Despite the **time-series** nature of the data, a CNN was chosen instead of an RNN/LSTM due to the small dataset size and better performance on classification tasks.
+```python
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, Dense, Flatten, Dropout
 
-- **Training Set**: 28 control examples, 28 PD examples.
-- **Test Set**: 5 control examples, 5 PD examples.
+# Define the CNN model
+model = Sequential([
+    Conv2D(24, (7, 7), activation='relu', input_shape=(64, 64, 1)),
+    Flatten(),
+    Dense(64, activation='relu'),
+    Dropout(0.5),
+    Dense(1, activation='sigmoid')
+])
 
-### Model Performance
-- **Gait Force Model**: 80% accuracy on the test set.
-- **Step-Time Interval Model**: 60% accuracy on the test set.
+# Compile the model
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-These results indicate that **gait force** provides more detailed information than step-time intervals for diagnosing Parkinson's Disease.
+# Training the model
+model.fit(X_train, y_train, epochs=10, batch_size=32, validation_data=(X_test, y_test))
+```
 
-## Future Directions
+## Data Processing and Preparation
 
-- Expanding the dataset to improve model accuracy and robustness.
-- Exploring additional gait metrics.
-- Comparing this method with other neurological diseases.
-- Tracking the progression of Parkinson’s Disease over time using gait metrics.
+The dataset is processed using **Pandas** and normalized for model training. The following steps highlight the data processing pipeline:
 
-## Why CNN and not LSTM?
+```python
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
-Although the data is time-series, this is not a sequence prediction problem. **CNNs** perform better on smaller datasets and are more effective for time-series classification than **LSTMs**, which are prone to overfitting with limited data.
+# Load dataset
+data = pd.read_csv('gait_data.csv')
+
+# Normalizing the data
+scaler = StandardScaler()
+data_scaled = scaler.fit_transform(data[['step_force', 'step_time_interval']])
+
+# Preparing training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(data_scaled, labels, test_size=0.2)
+```
+
+## Model Performance
+
+The model performed well, achieving:
+- **80% accuracy** on the test set using Gait Force data.
+- **60% accuracy** using Step-Time Interval data.
+
+## Future Work
+
+- Expand the dataset to refine the model further.
+- Explore additional gait metrics and incorporate more complex neural network architectures (e.g., **LSTM** for sequence prediction).
+- Compare the model with other **neurological disorders** to improve diagnostic accuracy.
 
 ## Installation and Setup
 
-To run the project locally, you will need the following libraries:
+To set up and run the project locally:
 
 ```bash
 pip install numpy pandas scikit-learn tensorflow keras matplotlib
 ```
 
-### Running the Classifier
+Clone the repository and navigate to the project directory:
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/parkinsons-gait-classifier.git
-   ```
+```bash
+git clone https://github.com/your-username/parkinsons-gait-classifier.git
+cd parkinsons-gait-classifier
+```
 
-2. Navigate to the project directory:
-   ```bash
-   cd parkinsons-gait-classifier
-   ```
+Run the classifier:
 
-3. Run the classifier:
-   ```bash
-   python parkinsons.py
-   ```
-
-## Data Processing
-
-The script processes **Gait Force** and **Step Interval** data by normalizing the input features and training the CNN model. Results are displayed after training.
+```bash
+python parkinsons.py
+```
 
 ## License
 
